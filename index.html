@@ -1,12 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Hello World Azure Template</title>
-</head>
-<body>
-<h1>Azure Static Website Template</h1>
-<p>This page is a sample page for a “Hello World” Azure Static Website Template. The page contains an HTML validation warning. 
-Can you find and fix that warning? What about the curly quotes? Do they current work in all browsers? Can you fix the curly 
-quotes also? And what about proper indenting?</p>
+<!doctype html>
+</header>
+
+
+<main id="main" class="container">
+<section class="section">
+<h2>Instructions</h2>
+<ol class="steps">
+<li>The page will <strong>roll automatically</strong> when it loads.</li>
+<li>The <strong>Roll Dice</strong> button is focused by default — tap <kbd>Enter</kbd> to roll again.</li>
+<li>All random number fields are <strong>read‑only</strong> and all numbers are <strong>right‑aligned</strong>.</li>
+</ol>
+</section>
+
+
+<section class="section">
+<div class="toolbar">
+<button id="rollBtn" class="btn" autofocus aria-label="Roll dice">Roll Dice</button>
+<div class="config" aria-live="polite">
+<span>Dice: <strong id="diceCount">5</strong> × Sides: <strong id="sidesCount">6</strong></span>
+</div>
+</div>
+
+
+<div class="table-wrap">
+<table class="table" role="table" aria-describedby="tableCaption">
+<caption id="tableCaption" class="sr-only">Five six‑sided dice results and total</caption>
+<thead>
+<tr>
+<th scope="col">Die</th>
+<th scope="col" class="num-col">Value</th>
+</tr>
+</thead>
+<tbody id="diceBody"><!-- rows injected by JS --></tbody>
+<tfoot>
+<tr>
+<th scope="row">Total</th>
+<td>
+<input id="total" class="num" type="text" inputmode="numeric" readonly aria-label="Sum of all dice" />
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</section>
+
+
+<section class="section note">
+<h2>About</h2>
+<p>This demo focuses only on the <em>dice rolling</em> portion of a game (e.g., Yahtzee). No scoring rules are implemented.</p>
+</section>
+</main>
+
+
+<footer class="site-footer">
+<div class="container">
+<p>© <span id="y"></span> Dice Roller • Hosted on Azure • <a href="#" aria-disabled="true">Privacy</a></p>
+</div>
+</footer>
+
+
+<script src="app.js"></script>
 </body>
 </html>
