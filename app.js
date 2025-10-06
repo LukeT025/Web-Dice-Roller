@@ -1,38 +1,57 @@
-// Config: default to Yahtzee-style 5d6
+// ===== Config: default to 5 dice, 6 sides (5d6) =====
 const DICE = 5;
 const SIDES = 6;
 
-// Elements
-let diceBody, totalField, rollBtn;
+/**
+ * IMPORTANT — point this at your deployed API base URL
+ * Example: "https://your-api-app.azurewebsites.net"
+ */
+const API_BASE = "https://YOUR-API-NAME.azurewebsites.net";
 
-// avoid double init
-let __inited = false;
+// Elements
+let diceBody, totalField, rollBtn, statusEl, corsBtn;
+
+// Initialize when DOM is ready (auto-roll on first load)
 document.addEventListener('DOMContentLoaded', init);
 
 function init(){
-  if (__inited) return; __inited = true;
-
-  diceBody = document.getElementById('diceBody');
+  diceBody   = document.getElementById('diceBody');
   totalField = document.getElementById('total');
-  rollBtn = document.getElementById('rollBtn');
+  rollBtn    = document.getElementById('rollBtn');
+  statusEl   = document.getElementById('status');
+  corsBtn    = document.getElementById('corsBtn');
 
-  if (!diceBody || !totalField || !rollBtn) {
-    console.error('Missing required elements. Check IDs and file paths.');
-    const msg = document.createElement('p');
-    msg.style.color = '#ffb3b3';
-    msg.textContent = 'Error: Required elements not found. Make sure index.html, style.css, and app.js are in the SAME folder and the names/paths match exactly.';
-    document.body.prepend(msg);
-    return;
-  }
+  // Show config text
+  document.getElementById('diceCount').textContent = DICE;
+  document.getElementById('sidesCount').textContent = SIDES;
 
-  const dc = document.getElementById('diceCount');
-  const sc = document.getElementById('sidesCount');
-  if (dc) dc.textContent = DICE;
-  if (sc) sc.textContent = SIDES;
-
+  // Build rows once
   buildRows();
+
+  // Bind events
   rollBtn.addEventListener('click', rollDice);
-  rollDice(); // auto-roll on load
+  if (corsBtn) corsBtn.addEventListener('click', demoCorsFailure);
+
+  // Wake server asynchronously, then auto-roll
+  wakeServer().finally(() => {
+    rollDice();
+  });
+}
+
+function setStatus(msg){
+  if (statusEl) statusEl.textContent = msg || "";
+}
+
+async function wakeServer(){
+  try{
+    setStatus("Waking server…");
+    const r = await fetch(`${API_BASE}/api/wakeup`, { mode: "cors" });
+    if (!r.ok) throw new Error(`Wakeup HTTP ${r.status}`);
+    const data = await r.json();
+    setStatus(`Server awake @ ${new Date(data.time).toLocaleString()}`);
+  }catch(err){
+    setStatus(`Wakeup failed (you can still try rolling): ${String(err).slice(0,160)}`);
+  }
 }
 
 function buildRows(){
@@ -47,9 +66,9 @@ function buildRows(){
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
-    input.readOnly = true;        // random fields are read-only
+    input.readOnly = true;       // random fields are read-only
     input.inputMode = 'numeric';
-    input.className = 'num';      // right-justified via CSS
+    input.className = 'num';     // right-justified via CSS
     input.id = `die-${i}`;
     input.setAttribute('aria-label', `Value of die ${i}`);
 
@@ -62,23 +81,38 @@ function buildRows(){
   diceBody.appendChild(frag);
 }
 
-function randInt(sides){
-  if (crypto && crypto.getRandomValues) {
-    const x = new Uint32Array(1);
-    crypto.getRandomValues(x);
-    return (x[0] % sides) + 1;
+// SERVER randoms — roll all dice at once via /api/rolls
+async function rollDice(){
+  try{
+    setStatus("Rolling on server…");
+    const r = await fetch(`${API_BASE}/api/rolls?dice=${DICE}&sides=${SIDES}`, { mode: "cors" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const { values, sum } = await r.json();
+
+    values.forEach((val, idx) => {
+      const input = document.getElementById(`die-${idx + 1}`);
+      if (input) input.value = String(val);
+    });
+    totalField.value = String(sum);
+    setStatus("Done.");
+  }catch(err){
+    setStatus(`Roll failed: ${String(err).slice(0,160)}`);
   }
-  return Math.floor(Math.random() * sides) + 1;
+
+  // Keep keyboard flow: focus the roll button so Enter triggers again
+  if (rollBtn) rollBtn.focus();
 }
 
-function rollDice(){
-  let sum = 0;
-  for (let i = 1; i <= DICE; i++){
-    const val = randInt(SIDES);
-    sum += val;
-    const input = document.getElementById(`die-${i}`);
-    if (input) input.value = String(val);
+/**
+ * Demonstrate an intentional CORS failure by calling an endpoint that
+ * does NOT send CORS headers from the server. The browser should block it.
+ */
+async function demoCorsFailure(){
+  setStatus("Calling /api/blocked to demonstrate CORS failure…");
+  try{
+    await fetch(`${API_BASE}/api/blocked`, { mode: "cors" });
+    setStatus("Unexpected: /api/blocked succeeded (server must NOT send CORS here).");
+  }catch(err){
+    setStatus(`Expected CORS failure observed: ${String(err).slice(0,160)}`);
   }
-  if (totalField) totalField.value = String(sum);
-  if (rollBtn) rollBtn.focus();   // let Enter roll again
 }

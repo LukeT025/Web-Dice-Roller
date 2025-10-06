@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <!-- Keeping UTF-8 ensures normal characters; we also avoid fancy symbols -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Web Dice Roller</title>
-  <meta name="description" content="Simple dice roller that rolls five 6-sided dice. Auto-roll on load; press the button to roll again." />
+  <meta name="description" content="Simple dice roller (5d6) that fetches all random numbers from a remote server. Auto-roll on load." />
   <link rel="stylesheet" href="style.css" />
-  <script src="app.js" defer></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -15,7 +14,8 @@
   <header class="site-header">
     <div class="container narrow">
       <h1 class="brand">Web Dice Roller</h1>
-      <p class="tag">Rolls five 6-sided dice. Auto-rolls on load. Press the button to roll again.</p>
+      <p class="tag">Rolls five 6-sided dice. Numbers are generated on the <strong>server</strong>. Auto-rolls on load.</p>
+      <p id="status" class="tag" aria-live="polite"></p>
     </div>
   </header>
 
@@ -23,17 +23,19 @@
     <section class="card">
       <h2>Instructions</h2>
       <ul class="instr">
-        <li>The page will roll automatically when it loads.</li>
-        <li>The Roll Dice button is focused by default. Press Enter to roll again.</li>
-        <li>All random number fields are read-only and all numbers are right-aligned.</li>
+        <li>The page rolls automatically on load (after waking the server).</li>
+        <li>“Roll Dice” is focused by default. Press Enter to roll again.</li>
+        <li>All random numbers are fetched from the server via REST APIs.</li>
+        <li>Use “Test CORS Failure” to demonstrate a blocked cross-origin call.</li>
       </ul>
     </section>
 
     <section class="card">
       <div class="toolbar">
         <button id="rollBtn" class="btn" autofocus aria-label="Roll dice">Roll Dice</button>
+        <button id="corsBtn" class="btn" aria-label="Demonstrate CORS failure">Test CORS Failure</button>
         <div class="config">
-          <span>Dice: <strong id="diceCount">5</strong> x Sides: <strong id="sidesCount">6</strong></span>
+          <span>Dice: <strong id="diceCount">5</strong> × Sides: <strong id="sidesCount">6</strong></span>
         </div>
       </div>
 
@@ -61,12 +63,8 @@
 
     <section class="card">
       <h2>About</h2>
-      <p>This is like a demo focuses only on the dice rolling portion of a game (for example, Yahtzee). No scoring rules are implemented.</p>
+      <p>This demo focuses only on the dice-rolling portion (e.g., like Yahtzee dice). No scoring rules implemented.</p>
     </section>
   </main>
-</body>
-</html>
-
-<script src="app.js"></script>
 </body>
 </html>
