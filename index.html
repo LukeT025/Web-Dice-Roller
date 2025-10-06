@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Web Dice Roller</title>
-  <meta name="description" content="Simple dice roller (5d6) that fetches all random numbers from a remote server. Auto-roll on load." />
+  <meta name="description" content="5d6 dice roller that fetches all random numbers from a server. Auto-roll on load." />
   <link rel="stylesheet" href="style.css" />
   <script defer src="app.js"></script>
 </head>
@@ -14,7 +14,7 @@
   <header class="site-header">
     <div class="container narrow">
       <h1 class="brand">Web Dice Roller</h1>
-      <p class="tag">Rolls five 6-sided dice. Numbers are generated on the <strong>server</strong>. Auto-rolls on load.</p>
+      <p class="tag">All numbers are generated on the <strong>server</strong>. Auto-rolls on load.</p>
       <p id="status" class="tag" aria-live="polite"></p>
     </div>
   </header>
@@ -23,10 +23,9 @@
     <section class="card">
       <h2>Instructions</h2>
       <ul class="instr">
-        <li>The page rolls automatically on load (after waking the server).</li>
-        <li>“Roll Dice” is focused by default. Press Enter to roll again.</li>
-        <li>All random numbers are fetched from the server via REST APIs.</li>
-        <li>Use “Test CORS Failure” to demonstrate a blocked cross-origin call.</li>
+        <li>The page wakes the server, then rolls automatically.</li>
+        <li>Press Enter on “Roll Dice” to roll again.</li>
+        <li>“Test CORS Failure” calls an endpoint without CORS.</li>
       </ul>
     </section>
 
@@ -48,13 +47,11 @@
               <th scope="col" class="num-col">Value</th>
             </tr>
           </thead>
-          <tbody id="diceBody"><!-- rows injected by JS --></tbody>
+          <tbody id="diceBody"></tbody>
           <tfoot>
             <tr>
               <th scope="row">Total</th>
-              <td>
-                <input id="total" class="num" type="text" inputmode="numeric" readonly aria-label="Sum of all dice" />
-              </td>
+              <td><input id="total" class="num" type="text" inputmode="numeric" readonly aria-label="Sum of all dice" /></td>
             </tr>
           </tfoot>
         </table>
@@ -63,7 +60,7 @@
 
     <section class="card">
       <h2>About</h2>
-      <p>This demo focuses only on the dice-rolling portion (e.g., like Yahtzee dice). No scoring rules implemented.</p>
+      <p>Demo focuses only on the dice rolling; no scoring rules.</p>
     </section>
   </main>
 </body>

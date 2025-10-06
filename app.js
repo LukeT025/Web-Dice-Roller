@@ -2,11 +2,11 @@
 const DICE = 5;
 const SIDES = 6;
 
-/**
- * IMPORTANT — point this at your deployed API base URL
- * Example: "https://your-api-app.azurewebsites.net"
+/*
+ * IMPORTANT: API base points to your Requirement-1 server (App Service).
+ * DO NOT point this to your static site.
  */
-const API_BASE = "https://YOUR-API-NAME.azurewebsites.net";
+const API_BASE = "https://lt-test-static-nodejs1.azurewebsites.net";
 
 // Elements
 let diceBody, totalField, rollBtn, statusEl, corsBtn;
@@ -30,12 +30,10 @@ function init(){
 
   // Bind events
   rollBtn.addEventListener('click', rollDice);
-  if (corsBtn) corsBtn.addEventListener('click', demoCorsFailure);
+  corsBtn.addEventListener('click', demoCorsFailure);
 
   // Wake server asynchronously, then auto-roll
-  wakeServer().finally(() => {
-    rollDice();
-  });
+  wakeServer().finally(rollDice);
 }
 
 function setStatus(msg){
@@ -46,7 +44,7 @@ async function wakeServer(){
   try{
     setStatus("Waking server…");
     const r = await fetch(`${API_BASE}/api/wakeup`, { mode: "cors" });
-    if (!r.ok) throw new Error(`Wakeup HTTP ${r.status}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     setStatus(`Server awake @ ${new Date(data.time).toLocaleString()}`);
   }catch(err){
@@ -103,15 +101,12 @@ async function rollDice(){
   if (rollBtn) rollBtn.focus();
 }
 
-/**
- * Demonstrate an intentional CORS failure by calling an endpoint that
- * does NOT send CORS headers from the server. The browser should block it.
- */
+/* Intentional CORS failure demo */
 async function demoCorsFailure(){
-  setStatus("Calling /api/blocked to demonstrate CORS failure…");
+  setStatus("Calling /api/blocked (should fail due to CORS) …");
   try{
     await fetch(`${API_BASE}/api/blocked`, { mode: "cors" });
-    setStatus("Unexpected: /api/blocked succeeded (server must NOT send CORS here).");
+    setStatus("Unexpected: /api/blocked succeeded (server must omit CORS there).");
   }catch(err){
     setStatus(`Expected CORS failure observed: ${String(err).slice(0,160)}`);
   }
